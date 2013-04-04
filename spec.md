@@ -28,11 +28,12 @@ continuable(function callback(err, value) { })
 ```
 
 1. callback is a required argument and it must be a function
-    1. The continuable must produce a single resolution
+    1. The continuable must produce a single resolution for this
+    callback
         1. If the resolution is a value then the callback must
-            be called with `null` as the "error" and the value.
+        be called with `null` as the "error" and the value.
         2. If the resolution is an error then the callback must
-            be called with the error as the "error"
+        be called with the error as the "error"
 
 ## Notes
 
