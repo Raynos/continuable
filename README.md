@@ -1,8 +1,8 @@
 # continuable
 
-[![build status][1]][2] [![dependency status][3]][4]
+<!-- [![build status][1]][2] [![dependency status][3]][4]
 
-[![browser support][5]][6]
+[![browser support][5]][6] -->
 
 Idea for callbacks as values
 
@@ -10,6 +10,26 @@ Idea for callbacks as values
 
 ```js
 
+var readdir = function (uri) {
+    return function (cb) {
+        fs.readdir(uri, cb)
+    }
+}
+
+function map(lambda) { return function (source) {
+    return function continuable(callback) {
+        source(function (err, value) {
+            callback(err, err ? null : lambda(value))
+        })
+    }
+} }
+
+var asString = map(String)
+var asJSON = map(function (x) { return JSON.parse(x) })
+
+asJSON(asString(readdir("/tmp/foo.json")))(function (err, value) {
+    /* do stuff with JSON */
+})
 ```
 
 ## Installation
