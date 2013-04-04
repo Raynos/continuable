@@ -14,7 +14,7 @@ A continuable represents an asynchronous operation that returns
     error and a value
 4. "continuable" is a function which takes a callback as an
     argument
-5. "resolution" of a continuable is either a value or an error,
+5. the "resolution" of a continuable is either a value or an error,
     never both.
 
 ## Requirements
