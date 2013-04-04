@@ -40,7 +40,7 @@ That's it. Dead simple.
 
 ```js
 continuable(function callback(err, value) {
-    // the continuable has produced as a resolution
+    // the continuable has produced a resolution
 
     if (err) {
         // the continuable resoluted to an error.
