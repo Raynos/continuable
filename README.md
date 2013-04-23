@@ -46,7 +46,7 @@ The callback get's called with the normal node error and value pattern.
 // readFile := (String) => Continuable<Buffer>
 var readFile = function (uri) {
     return function continuable(callback) {
-        fs.readFile(uri, cb)
+        fs.readFile(uri, callback)
     }
 }
 ```
@@ -71,6 +71,10 @@ var asString = map(String)
 var asJSON = map(function (x) { return JSON.parse(x) })
 
 var json = asJSON(asString(readFile("/tmp/foo.json")))
+
+json(function (err, json) {
+    /* do stuff */
+})
 ```
 
 ### `join(continuable)`
@@ -88,11 +92,13 @@ var asString = map(String)
 var asJSON = map(function (x) { return JSON.parse(x) })
 
 var json = asJSON(asString(readFile("/tmp/foo.json")))
+
 var write = map(function (json) {
     return function continuable(cb) {
         fs.writeFile("/tmp/bar.json", JSON.stringify(json))
     }
 })(json)
+
 join(write)(function (err, writeResult) {
     /* stuff */
 })
