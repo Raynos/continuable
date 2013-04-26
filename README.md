@@ -83,7 +83,7 @@ json(function (err, json) {
 join := (source:Continuable<Continuable<T>>) => Continuable<T>
 ```
 
-join takes a continuable that contains another continuable and flattens it by
+`join` takes a continuable that contains another continuable and flattens it by
 one layer. This is useful if you return another asynchronous operation from
 `map`
 
@@ -95,13 +95,33 @@ var json = asJSON(asString(readFile("/tmp/foo.json")))
 
 var write = map(function (json) {
     return function continuable(cb) {
-        fs.writeFile("/tmp/bar.json", JSON.stringify(json))
+        fs.writeFile("/tmp/bar.json", JSON.stringify(json), cb)
     }
 })(json)
 
 join(write)(function (err, writeResult) {
     /* stuff */
 })
+```
+
+### `of(value)`
+
+```js
+of := (Value) => Continuable<Value>
+```
+
+`of` takes any value and returns a Continuable for this value. This is useful
+    if you want to implement a function that either returns a value or a
+    continuable.
+
+```js
+function getThing() {
+    var thing = localStorage.getItem("thing")
+
+    if (thing) return of(thing)
+
+    return ajax("/thing")
+}
 ```
 
 ## Installation
