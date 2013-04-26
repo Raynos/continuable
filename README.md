@@ -124,6 +124,32 @@ function getThing() {
 }
 ```
 
+### `error(err)`
+
+```js
+error := (Error) => Continuable<void>
+```
+
+`error` takes any error and returns a Continuable that will return said error.
+    This is useful if you want to transform a normal continuable into an
+    error state one.
+
+```js
+var body = getBody(req, res)
+
+var dbWrite map(function (body) {
+    if (!body) {
+        return error(new Error("Need body"))
+    }
+
+    return db.write(body)
+})(body)
+
+join(dbWrite)(function (err, writeResult) {
+    /* do stuff */
+})
+```
+
 ## Installation
 
 `npm install continuable`
