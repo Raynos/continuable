@@ -137,7 +137,7 @@ error := (Error) => Continuable<void>
 ```js
 var body = getBody(req, res)
 
-var dbWrite map(function (body) {
+var dbWrite = map(function (body) {
     if (!body) {
         return error(new Error("Need body"))
     }
@@ -146,6 +146,36 @@ var dbWrite map(function (body) {
 })(body)
 
 join(dbWrite)(function (err, writeResult) {
+    /* do stuff */
+})
+```
+
+### `bind(lambda)(continuable)`
+
+```js
+bind :: (A => Continuable<B>) => (Continuable<A>) => Continuable<B>
+```
+
+`bind` takes a lambda function that is given the value and returns another
+    continuables. The result will be a continuable given the value of the
+    returned continuable.
+
+In combination with `of` this makes `Continuable` a monad.
+
+Alternatively this can be seen as sugar for `map` followed by `join`
+
+```js
+var body = getBody(req, res)
+
+var dbWrite = bind(function (body) {
+    if (!body) {
+        return error(new Error("Need body"))
+    }
+
+    return db.write(body)
+})(body)
+
+dbWrite(function (err, writeResult) {
     /* do stuff */
 })
 ```
