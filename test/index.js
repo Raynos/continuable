@@ -33,7 +33,7 @@ test("error:(Error) => Continuable<void>", function(assert) {
     assert.end()
 })
 
-test("chain:(lambda:(A) => Continuable<B>) => (Continuable<A>) => Continuable<B>", function(assert) {
+test("chain:(Continuable<A>, lambda:(A) => Continuable<B>) => Continuable<B>", function(assert) {
     var value = {}
     var err = new Error("Broken")
 
@@ -61,7 +61,7 @@ test("chain:(lambda:(A) => Continuable<B>) => (Continuable<A>) => Continuable<B>
     assert.end()
 })
 
-test("map:(lambda:(A) => B) => (Continuable<A>) => Continuable<B>", function(assert) {
+test("map:(Continuable<A>, lambda:(A) => B) => Continuable<B>", function(assert) {
     var value = "A"
     var continuableA
     var continuableB
