@@ -15,18 +15,18 @@ var readFile = function (uri) {
     }
 }
 
-function map(lambda) { return function (source) {
+function map(source, lambda) {
     return function continuable(callback) {
         source(function (err, value) {
             callback(err, err ? null : lambda(value))
         })
     }
-} }
+}
 
-var asString = map(String)
-var asJSON = map(function (x) { return JSON.parse(x) })
+var asString = map(readFile("/tmp/foo.json"), String)
+var asJSON = map(asString, function (x) { return JSON.parse(x) })
 
-asJSON(asString(readFile("/tmp/foo.json")))(function (err, value) {
+asJSON(function (err, value) {
     /* do stuff with JSON */
 })
 ```
@@ -56,10 +56,10 @@ another value is that a continuable is a concrete value that can be returned.
 
 Which means you can call useful functions on this value like `map` and `join`
 
-### `map(lambda)(source)`
+### `map(source, lambda)`
 
 ```js
-map := (lambda:(A) => B) => (source:Continuable<A>) => Continuable<B>
+map := (source:Continuable<A>, lambda:(A) => B) => Continuable<B>
 ```
 
 map takes a transformation function and a continuable and returns a new
@@ -67,12 +67,10 @@ continuable. The new continuable is the value of the first continuable
 transformed by your mapping function.
 
 ```js
-var asString = map(String)
-var asJSON = map(function (x) { return JSON.parse(x) })
+var asString = map(readFile("/tmp/foo.json"), String)
+var asJSON = map(asString, function (x) { return JSON.parse(x) })
 
-var json = asJSON(asString(readFile("/tmp/foo.json")))
-
-json(function (err, json) {
+asJSON(function (err, json) {
     /* do stuff */
 })
 ```
@@ -88,16 +86,14 @@ one layer. This is useful if you return another asynchronous operation from
 `map`
 
 ```js
-var asString = map(String)
-var asJSON = map(function (x) { return JSON.parse(x) })
+var asString = map(readFile("/tmp/foo.json"), String)
+var asJSON = map(asString, function (x) { return JSON.parse(x) })
 
-var json = asJSON(asString(readFile("/tmp/foo.json")))
-
-var write = map(function (json) {
+var write = map(asJSON, function (json) {
     return function continuable(cb) {
         fs.writeFile("/tmp/bar.json", JSON.stringify(json), cb)
     }
-})(json)
+})
 
 join(write)(function (err, writeResult) {
     /* stuff */
@@ -137,26 +133,26 @@ error := (Error) => Continuable<void>
 ```js
 var body = getBody(req, res)
 
-var dbWrite = map(function (body) {
+var dbWrite = map(body, function (body) {
     if (!body) {
         return error(new Error("Need body"))
     }
 
     return db.write(body)
-})(body)
+})
 
 join(dbWrite)(function (err, writeResult) {
     /* do stuff */
 })
 ```
 
-### `bind(lambda)(continuable)`
+### `chain(continuable, lambda)`
 
 ```js
-bind :: (A => Continuable<B>) => (Continuable<A>) => Continuable<B>
+chain :: (Continuable<A>, A => Continuable<B>) => Continuable<B>
 ```
 
-`bind` takes a lambda function that is given the value and returns another
+`chain` takes a lambda function that is given the value and returns another
     continuables. The result will be a continuable given the value of the
     returned continuable.
 
@@ -167,13 +163,13 @@ Alternatively this can be seen as sugar for `map` followed by `join`
 ```js
 var body = getBody(req, res)
 
-var dbWrite = bind(function (body) {
+var dbWrite = chain(body, function (body) {
     if (!body) {
         return error(new Error("Need body"))
     }
 
     return db.write(body)
-})(body)
+})
 
 dbWrite(function (err, writeResult) {
     /* do stuff */

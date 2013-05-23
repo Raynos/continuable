@@ -5,7 +5,7 @@ var read = require("./util/readValue")
 var continuable = require("../index")
 var of = require("../of")
 var error = require("../error")
-var bind = require("../bind")
+var chain = require("../chain")
 var map = require("../map")
 var join = require("../join")
 
@@ -33,7 +33,7 @@ test("error:(Error) => Continuable<void>", function(assert) {
     assert.end()
 })
 
-test("bind:(lambda:(A) => Continuable<B>) => (Continuable<A>) => Continuable<B>", function(assert) {
+test("chain:(lambda:(A) => Continuable<B>) => (Continuable<A>) => Continuable<B>", function(assert) {
     var value = {}
     var err = new Error("Broken")
 
@@ -49,8 +49,8 @@ test("bind:(lambda:(A) => Continuable<B>) => (Continuable<A>) => Continuable<B>"
     continuableA = of(value)
     continuableAErr = error(err)
 
-    continuableB = bind(aToContB)(continuableA)
-    continuableBErr = bind(aToContB)(continuableAErr)
+    continuableB = chain(continuableA, aToContB)
+    continuableBErr = chain(continuableAErr, aToContB)
 
 
     assert.equal( read( continuableB )[1], value )
@@ -71,7 +71,7 @@ test("map:(lambda:(A) => B) => (Continuable<A>) => Continuable<B>", function(ass
     }
 
     continuableA = of(value)
-    continuableB = map(aToB)(continuableA)
+    continuableB = map(continuableA, aToB)
 
 
     assert.deepEqual( read( continuableB ), [null, transform(value)] )
