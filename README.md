@@ -1,8 +1,8 @@
 # continuable
 
-<!-- [![build status][1]][2] [![dependency status][3]][4]
+[![build status][1]][2] [![dependency status][3]][4]
 
-[![browser support][5]][6] -->
+[![browser support][5]][6]
 
 Idea for callbacks as values
 
