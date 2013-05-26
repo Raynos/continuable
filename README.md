@@ -149,7 +149,7 @@ join(dbWrite)(function (err, writeResult) {
 ### `chain(continuable, lambda)`
 
 ```js
-chain :: (Continuable<A>, A => Continuable<B>) => Continuable<B>
+chain := (Continuable<A>, (A) => Continuable<B>) => Continuable<B>
 ```
 
 `chain` takes a lambda function that is given the value and returns another
@@ -173,6 +173,42 @@ var dbWrite = chain(body, function (body) {
 
 dbWrite(function (err, writeResult) {
     /* do stuff */
+})
+```
+
+### `either(continuable, left, right?)`
+
+```js
+either := (source: Continuable<A>,
+           left: (Error) => Continuable<B>,
+          right?: (A) => Continuable<B>)
+    => Continuable<B>
+```
+
+`either` takes a source continuable and a left and right function.
+    It will either call the left function with the error in source
+    or call the right function with the value in the source.
+
+The returned continuable will contain the value returned from
+    either left or right. Note that left and right return
+    continuables themself.
+
+```js
+var fs = require("fs")
+var either = require("continuable/either")
+
+var fileStat = fs.stat.bind(null, "./package.json")
+var fileExists = either(fileStat, function left(err) {
+    return fs.writeFile.bind(null, "./package.json", "{}")
+}) // note the right function is optional
+
+var file = chain(fileExists, function () {
+    return fs.readFile.bind(null, "./package.json")
+})
+
+file(function (err, body) {
+    // There is no error because we create an empty file if the
+    // stat failed. Body is either body or {}
 })
 ```
 
