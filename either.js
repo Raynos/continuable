@@ -2,7 +2,9 @@ var of = require("./of")
 
 module.exports = either
 
-//  either := (source: Continuable<A>, left: (Error) => B, right?: (A) => B)
+//  either := (source: Continuable<A>,
+//             left: (Error) => Continuable<B>,
+//             right?: (A) => Continuable<B>)
 //      => Continuable<B>
 function either(cont, left, right) {
     right = right || of
