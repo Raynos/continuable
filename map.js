@@ -4,7 +4,8 @@ module.exports = map
 function map(source, lambda) {
     return function continuable(callback) {
         source(function continuation(err, value) {
-            return err ? callback(err) : callback(null, lambda(value))
+            if (err) callback(err)
+            else callback(null, lambda(value))
         })
     }
 }
