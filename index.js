@@ -4,6 +4,7 @@ maybeCallback.error = require("./error")
 maybeCallback.join = require("./join")
 maybeCallback.map = require("./map")
 maybeCallback.of = require("./of")
+maybeCallback.either = require("./either")
 
 module.exports = maybeCallback
 
