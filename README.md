@@ -180,7 +180,7 @@ dbWrite(function (err, writeResult) {
 
 ```js
 either := (source: Continuable<A>,
-           left: (Error) => Continuable<B>,
+           left: (Error, cb: Callback<B>) => Continuable<B>,
           right?: (A) => Continuable<B>)
     => Continuable<B>
 ```
@@ -211,6 +211,29 @@ file(function (err, body) {
     // stat failed. Body is either body or {}
 })
 ```
+
+The left function can either return a Continuable or call the
+    passed callback directly. For example:
+
+```js
+var item = fs.stat.bind(null, "./file")
+var maybeItem = either(item, function left(err, cb) {
+    if (err.code === "ENOENT") {
+        return cb(null, null)
+    }
+
+    cb(err)
+})
+
+maybeItem(function (err, item) {
+    // if stat returns a file not found then item is null
+    // if stat returns a random disk error then error!
+    // if stat returns the stat then item!
+})
+```
+
+Using the callback form is convenient and avoids the usage of
+    return `return of(null)` and `return error(err)`
 
 ## Installation
 
