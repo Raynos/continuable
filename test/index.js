@@ -8,6 +8,7 @@ var error = require("../error")
 var chain = require("../chain")
 var map = require("../map")
 var join = require("../join")
+var to = require('../to')
 
 test("continuable is a function", function (assert) {
     assert.equal(typeof continuable, "function")
@@ -96,4 +97,24 @@ test("join:(Continuable<Continuable<A>>) => Continuable<A>", function(assert) {
     // Actual same object
     assert.equal( read( joined )[1], read( contA )[1] )
     assert.end()
+})
+
+test('to:(AsyncFunction => MaybeContinuable)', function (assert) {
+  var cont = to(function (name, cb) {
+    cb(null, 'hello ' + name)
+  })
+
+  assert.equal( typeof cont, 'function' )
+
+  var r = Math.random()
+
+  cont(r) (function (err, hello) {
+    assert.equal( 'hello ' + r, hello)
+    var r2 = Math.random()
+    cont(r2, function (err, hello) {
+      assert.equal( 'hello ' + r2, hello)
+      assert.end()
+    })
+  })
+
 })
