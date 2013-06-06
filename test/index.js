@@ -8,6 +8,7 @@ var error = require("../error")
 var chain = require("../chain")
 var map = require("../map")
 var join = require("../join")
+var to = require("../to")
 
 test("continuable is a function", function (assert) {
     assert.equal(typeof continuable, "function")
@@ -33,7 +34,7 @@ test("error:(Error) => Continuable<void>", function(assert) {
     assert.end()
 })
 
-test("chain:(Continuable<A>, lambda:(A) => Continuable<B>) => Continuable<B>", function(assert) {
+test("chain:(C<A>, lambda:(A) => C<B>) => C<B>", function(assert) {
     var value = {}
     var err = new Error("Broken")
 
@@ -61,7 +62,7 @@ test("chain:(Continuable<A>, lambda:(A) => Continuable<B>) => Continuable<B>", f
     assert.end()
 })
 
-test("map:(Continuable<A>, lambda:(A) => B) => Continuable<B>", function(assert) {
+test("map:(C<A>, lambda:(A) => B) => C<B>", function(assert) {
     var value = "A"
     var continuableA
     var continuableB
@@ -96,4 +97,32 @@ test("join:(Continuable<Continuable<A>>) => Continuable<A>", function(assert) {
     // Actual same object
     assert.equal( read( joined )[1], read( contA )[1] )
     assert.end()
+})
+
+test("to:(AsyncFunction => MaybeContinuable)", function (assert) {
+    var cont = to(function async(name, cb) {
+        cb(null, "hello " + name)
+    })
+
+    assert.equal(typeof cont, "function")
+
+    var r = Math.random()
+
+    cont(r)(function (err, hello) {
+        assert.ifError(err)
+        assert.equal("hello " + r, hello)
+        var r2 = Math.random()
+        var continuable = cont(r2)
+        continuable(function (err, hello) {
+            assert.ifError(err)
+            assert.equal("hello " + r2, hello)
+
+            continuable(function (err, hello) {
+                assert.ifError(err)
+                assert.equal("hello " + r2, hello)
+
+                assert.end()
+            })
+        })
+    })
 })

@@ -1,9 +1,9 @@
 module.exports = chain
 
-// bind :: (Continuable<A>, lambda:(A) => Continuable<B>) => Continuable<B>
+// chain := (Continuable<A>, lambda:(A) => Continuable<B>) => Continuable<B>
 function chain(source, lambda) {
-    return function(callback) {
-        source(function(err, value) {
+    return function continuable(callback) {
+        source(function continuation(err, value) {
             if (err) {
                 return callback(err)
             }
