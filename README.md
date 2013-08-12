@@ -192,7 +192,7 @@ dbWrite(function (err, writeResult) {
 
 ```js
 either := (source: Continuable<A>,
-           left: (Error) => Continuable<B>,
+           left: (Error, cb: Callback<B>) => Continuable<B>,
           right?: (A) => Continuable<B>)
     => Continuable<B>
 ```
@@ -224,14 +224,41 @@ file(function (err, body) {
 })
 ```
 
+The left function can either return a Continuable or call the
+    passed callback directly. For example:
+
+```js
+var item = fs.stat.bind(null, "./file")
+var maybeItem = either(item, function left(err, cb) {
+    if (err.code === "ENOENT") {
+        return cb(null, null)
+    }
+
+    cb(err)
+})
+
+maybeItem(function (err, item) {
+    // if stat returns a file not found then item is null
+    // if stat returns a random disk error then error!
+    // if stat returns the stat then item!
+})
+```
+
+Using the callback form is convenient and avoids the usage of
+    return `return of(null)` and `return error(err)`
+
 ## `series([continuables])`
+
+See [continuable-series][7]
 
 Given an array of continuables return a continuable that invokes them in order,
 or until one errors.
 
 ## `para([continuables])`
 
-Given an array on continuables return a con
+See [continuable-para][8]
+
+Given an array on continuables return a continuable
 
 ## Installation
 
@@ -249,3 +276,5 @@ Given an array on continuables return a con
   [4]: https://david-dm.org/Raynos/continuable
   [5]: https://ci.testling.com/Raynos/continuable.png
   [6]: https://ci.testling.com/Raynos/continuable
+  [7]: http://ghub.io/continuable-series
+  [8]: http://ghub.io/continuable-para
