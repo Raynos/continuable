@@ -56,6 +56,18 @@ another value is that a continuable is a concrete value that can be returned.
 
 Which means you can call useful functions on this value like `map` and `join`
 
+### `to(asyncFunction)`
+
+take an async function and return a function that works as async function or continuable.
+
+``` js
+var readFile = continuable.to(fs.readFile)
+
+readFile (path, 'utf8') (function (err, text) {
+  //there you go
+})
+```
+
 ### `map(source, lambda)`
 
 ```js
@@ -211,6 +223,15 @@ file(function (err, body) {
     // stat failed. Body is either body or {}
 })
 ```
+
+## `series([continuables])`
+
+Given an array of continuables return a continuable that invokes them in order,
+or until one errors.
+
+## `para([continuables])`
+
+Given an array on continuables return a con
 
 ## Installation
 
