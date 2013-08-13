@@ -87,6 +87,30 @@ asJSON(function (err, json) {
 })
 ```
 
+### `mapAsync(source, lambda)`
+
+```ocaml
+mapAsync := (source: Continuable<A>, lambda: (A, Callback<B>))
+    => Continuable<B>
+```
+
+mapAsync takes an asynchronous transformation function and a source
+continuable. The new continuable is the value of the first continuable
+passed through the async transformation.
+
+```js
+var asString = map(readFile("/tmp/foo.json"), String)
+var asJSON = map(asString, function (x) { return JSON.parse(x) })
+
+var written = mapAsync(asJSON, function (json, cb) {
+    fs.writeFile("/tmp/bar.json", JSON.stringify(json), cb)
+})
+
+written(function (err, writeResult) {
+    /* stuff */
+})
+```
+
 ### `join(continuable)`
 
 ```js
@@ -110,6 +134,33 @@ var write = map(asJSON, function (json) {
 join(write)(function (err, writeResult) {
     /* stuff */
 })
+```
+
+### `both(source)`
+
+```ocaml
+continuable := (Continuable<A>) => Continuable<[Error, A]>
+```
+
+`both` takes a continuable and returns a continuable containing a tuple of
+    the error and the value. The returned continuable will never contain an
+    error.
+
+This is useful for handling errors using if statements
+
+```js
+var fileOrNull = function (uri) {
+    var source = fs.readFile.bind(null, uri)
+    var maybeFile = both(source)
+
+    return map(maybeFile, function (err, tuple) {
+        if (tuple[0]) {
+            return null
+        }
+
+        return tuple[1]
+    })
+}
 ```
 
 ### `of(value)`
