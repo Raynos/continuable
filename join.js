@@ -4,8 +4,11 @@ module.exports = join
 function join(source) {
     return function continuable(callback) {
         source(function continuation(err, next) {
-            if (err) callback(err)
-            else next(callback)
+            if (err) {
+                return callback(err)
+            }
+
+            next(callback)
         })
     }
 }

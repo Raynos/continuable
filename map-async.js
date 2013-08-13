@@ -1,14 +1,14 @@
-module.exports = map
+module.exports = mapAsync
 
-// map := (Continuable<A>, (A) => B) => Continuable<B>
-function map(source, lambda) {
+// mapAsync := (Continuable<A>, lambda: (A, Callback<B>)) => Continuable<B>
+function mapAsync(source, lambda) {
     return function continuable(callback) {
         source(function continuation(err, value) {
             if (err) {
                 return callback(err)
             }
 
-            callback(null, lambda(value))
+            lambda(value, callback)
         })
     }
 }
