@@ -1,9 +1,9 @@
-# Continuables
+# Continuables (or Thunk)
 
 ## General
 
 A continuable represents an asynchronous operation that returns
-    a value or an error.
+    a value or an error. It also referred to as a thunk.
 
 ## Terminology
 
