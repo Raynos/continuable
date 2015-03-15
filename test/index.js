@@ -126,3 +126,18 @@ test("to:(AsyncFunction => MaybeContinuable)", function (assert) {
         })
     })
 })
+
+test("to preserves context", function (assert) {
+
+    var obj = {
+        foo: to(function (cb) {
+            cb(null, typeof this.foo)
+        })
+    }
+
+    obj.foo()(function (_, type) {
+      assert.equal(type, 'function')
+      assert.end()
+    })
+
+})
