@@ -8,6 +8,7 @@ var error = require("../error")
 var chain = require("../chain")
 var map = require("../map")
 var join = require("../join")
+var bind = require("../bind")
 var to = require("../to")
 
 test("continuable is a function", function (assert) {
@@ -97,6 +98,28 @@ test("join:(Continuable<Continuable<A>>) => Continuable<A>", function(assert) {
     // Actual same object
     assert.equal( read( joined )[1], read( contA )[1] )
     assert.end()
+})
+
+test("bind:(C<A>, lambda:(A) => C<B>) => C<B>", function(assert) {
+    var value = "A"
+    var continuableA
+    var continuableB
+
+    var aToB = function(a) {
+        return of(transform(a))
+    }
+
+    continuableA = of(value)
+    continuableB = bind(continuableA, aToB)
+
+
+    assert.deepEqual( read( continuableB ), [null, transform(value)] )
+    assert.end()
+
+
+    function transform(a) {
+        return a + a
+    }
 })
 
 test("to:(AsyncFunction => MaybeContinuable)", function (assert) {
